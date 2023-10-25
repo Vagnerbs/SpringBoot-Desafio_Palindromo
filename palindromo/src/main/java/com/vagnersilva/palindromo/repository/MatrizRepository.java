@@ -1,0 +1,12 @@
+package com.vagnersilva.palindromo.repository;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import com.vagnersilva.palindromo.domain.Matriz;
+
+//Interface
+@Repository
+public interface MatrizRepository extends MongoRepository<Matriz, String> {
+
+}

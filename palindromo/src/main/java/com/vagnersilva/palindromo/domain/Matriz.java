@@ -1,0 +1,42 @@
+package com.vagnersilva.palindromo.domain;
+
+import java.io.Serializable;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+//Coleção matriz MongoDB
+@Document(collection = "matriz")
+public class Matriz implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	@Id 
+	private String id;
+	private String[][] matriz;
+	
+	public Matriz() {
+		
+	}
+
+	public Matriz(String id, String[][] matriz) {
+		this.id = id;
+		this.matriz = matriz;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String[][] getMatriz() {
+		return matriz;
+	}
+
+	public void setMatriz(String[][] matriz) {
+		this.matriz = matriz;
+	}
+
+}
