@@ -1,0 +1,197 @@
+package com.vagnersilva.palindromo.services;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.vagnersilva.palindromo.domain.Matriz;
+import com.vagnersilva.palindromo.domain.Palindrome;
+import com.vagnersilva.palindromo.repository.MatrizRepository;
+import com.vagnersilva.palindromo.repository.PalindromeRepository;
+
+@Service
+public class MatrizService {
+	
+	@Autowired
+	private MatrizRepository repo;
+
+	@Autowired
+	private PalindromeRepository palindromeRepo;
+	
+	// Método para buscar todos os palíndromos.
+	public List<String> getPalindromes() {
+		// Busca todos os palíndromos no repositório e converte para uma lista de strings.
+		List<Palindrome> palindromos = palindromeRepo.findAll();
+		return palindromos.stream().map(Palindrome::getValue).collect(Collectors.toList());
+	}
+
+	// Método para buscar todas as matrizes.
+	public List<Matriz> findAll(){
+		// Busca todas as matrizes no repositório.
+		return repo.findAll();
+	}
+
+	// Método para salvar palíndromos no banco de dados.
+	public void savePalindromes(List<String> listaPalindromos) {
+	    // Converte a lista de palíndromos para um conjunto para remover duplicatas.
+	    Set<String> conjuntoPalindromos = new HashSet<>(listaPalindromos);
+	    for (String palindrome : conjuntoPalindromos) {
+	        // Cria um novo objeto Palindrome e define seu valor.
+	        Palindrome novoPalindrome = new Palindrome();
+	        novoPalindrome.setValue(palindrome);
+	        // Salva o novo objeto Palindrome no repositório.
+	        palindromeRepo.save(novoPalindrome);
+	    }
+	}
+
+    // Método para encontrar e salvar palíndromos
+    public Set<String> encontrarESalvarPalindromos(){
+        // Cria um conjunto vazio de palíndromos
+        Set<String> palindromos = new HashSet<>();
+        // Para cada matriz no banco de dados...
+        for (Matriz matriz : findAll()) {
+            // ...obtém a matriz de valores...
+            String[][] matrizValores = matriz.getMatriz();
+            // ...e procura por palíndromos na horizontal, vertical e diagonal.
+            encontrarHorizontal(matrizValores, palindromos);
+            encontrarVertical(matrizValores, palindromos);
+            encontrarDiagonal(matrizValores, palindromos);
+        }
+        // Salva os palíndromos encontrados no banco de dados.
+        savePalindromes(new ArrayList<>(palindromos));
+        // Retorna os palíndromos encontrados.
+        return palindromos;
+    }
+
+    // Método privado para encontrar palíndromos na horizontal em uma matriz de valores.
+    private void encontrarHorizontal(String[][] matrizValores, Set<String> palindromos) {
+        // Para cada linha da matriz...
+        for (int i = 0; i < matrizValores.length; i++) {
+            // ...e para cada coluna da linha...
+            for (int j = 0; j < matrizValores[i].length; j++) {
+                // ...inicia uma sequência vazia...
+                String sequencia = "";
+                // ...e para cada elemento restante na linha...
+                for (int k = 0; k < matrizValores[i].length - j; k++) {
+                    // ...adiciona o elemento à sequência...
+                    sequencia += matrizValores[i][j + k];
+                    // ...e se a sequência tem pelo menos 4 caracteres e é um palíndromo...
+                    if (sequencia.length() >= 4 && isPalindromo(sequencia)) {
+                        // ...adiciona a sequência ao conjunto de palíndromos.
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+    }
+
+    // Método privado para encontrar palíndromos na vertical em uma matriz de valores.
+    private void encontrarVertical(String[][] matrizValores, Set<String> palindromos) {
+        // Para cada coluna da matriz...
+        for (int i = 0; i < matrizValores[0].length; i++) {
+            // ...e para cada linha da coluna...
+            for (int j = 0; j < matrizValores.length; j++) {
+                // ...inicia uma sequência vazia...
+                String sequencia = "";
+                // ...e para cada elemento restante na coluna...
+                for (int k = 0; k < matrizValores.length - j; k++) {
+                    // ...adiciona o elemento à sequência...
+                    sequencia += matrizValores[j + k][i];
+                    // ...e se a sequência tem pelo menos 4 caracteres e é um palíndromo...
+                    if (sequencia.length() >= 4 && isPalindromo(sequencia)) {
+                        // ...adiciona a sequência ao conjunto de palíndromos.
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Método privado para encontrar palíndromos na diagonal em uma matriz de valores.
+    private void encontrarDiagonal(String[][] matrizValores, Set<String> palindromos) {
+        // Diagonal principal e abaixo
+        for (int i = 0; i < matrizValores.length; i++) {
+            for (int j = 0, x = i; x < matrizValores.length; j++, x++) {
+                String sequencia = "";
+                // Percorre a diagonal principal e abaixo
+                for (int k = 0, y = x, z = j; y < matrizValores.length && z < matrizValores[0].length; k++, y++, z++) {
+                    sequencia += matrizValores[y][z];
+                    // Verifica se a sequência é um palíndromo e se tem tamanho maior ou igual a 4
+                    if (sequencia.length() >= 4 && isPalindromo(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+
+        // Diagonal principal e acima
+        for (int i = 1; i < matrizValores[0].length; i++) {
+            for (int j = 0, x = i; x < matrizValores[0].length; j++, x++) {
+                String sequencia = "";
+                // Percorre a diagonal principal e acima
+                for (int k = 0, y = j, z = x; y < matrizValores.length && z < matrizValores[0].length; k++, y++, z++) {
+                    sequencia += matrizValores[y][z];
+                    // Verifica se a sequência é um palíndromo e se tem tamanho maior ou igual a 4
+                    if (sequencia.length() >= 4 && isPalindromo(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+
+        // Diagonal secundária e abaixo
+        for (int i = 0; i < matrizValores.length; i++) {
+            for (int j = 0, x = i, z = 0; x >= 0 ; j++, x--, z++) {
+                String sequencia = "";
+                // Percorre a diagonal secundária e abaixo
+                for (int k = 0, y = x, w = z ; y >= 0 && w < matrizValores[0].length ; k++, y--, w++) {
+                    sequencia += matrizValores[y][w];
+                    // Verifica se a sequência é um palíndromo e se tem tamanho maior ou igual a 4
+                    if (sequencia.length() >= 4 && isPalindromo(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+
+        // Diagonal secundária e acima
+        for (int i = 1; i < matrizValores[0].length; i++) {
+            for (int j = matrizValores.length - 1, x = i, z = matrizValores.length - 1; x < matrizValores[0].length ; j--, x++, z--) {
+                String sequencia = "";
+                // Percorre a diagonal secundária e acima
+                for (int k = 0, y = z, w = x ; y >= 0 && w < matrizValores[0].length ; k++, y--, w++) {
+                    sequencia += matrizValores[y][w];
+                    // Verifica se a sequência é um palíndromo e se tem tamanho maior ou igual a 4
+                    if (sequencia.length() >= 4 && isPalindromo(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+    }
+
+    // Método privado para verificar se uma string é um palíndromo.
+    private boolean isPalindromo(String str) {
+        // Define o início da string
+        int inicio = 0;
+        // Define o fim da string
+        int fim = str.length() - 1;
+        // Enquanto o início for menor que o fim...
+        while (inicio < fim) {
+            // Se os caracteres nas posições início e fim forem diferentes, retorna falso.
+            if (str.charAt(inicio) != str.charAt(fim)) {
+                return false;
+            }
+            // Incrementa o início e decrementa o fim.
+            inicio++;
+            fim--;
+        }
+        // Se todos os caracteres correspondentes forem iguais, retorna verdadeiro.
+        return true;
+    }
+}

@@ -1,0 +1,50 @@
+package com.vagnersilva.palindromo.services;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.vagnersilva.palindromo.domain.Matriz;
+import com.vagnersilva.palindromo.domain.Palindrome;
+import com.vagnersilva.palindromo.repository.MatrizRepository;
+import com.vagnersilva.palindromo.repository.PalindromeRepository;
+
+@Service
+public class MatrizService {
+	
+	@Autowired
+	private MatrizRepository repo;
+
+	@Autowired
+	private PalindromeRepository palindromeRepo;
+	
+	// Método para buscar todos os palíndromos.
+	public List<String> getPalindromes() {
+		// Busca todos os palíndromos no repositório e converte para uma lista de strings.
+		List<Palindrome> palindromos = palindromeRepo.findAll();
+		return palindromos.stream().map(Palindrome::getValue).collect(Collectors.toList());
+	}
+
+	// Método para buscar todas as matrizes.
+	public List<Matriz> findAll(){
+		// Busca todas as matrizes no repositório.
+		return repo.findAll();
+	}
+
+	// Método para salvar palíndromos no banco de dados.
+	public void savePalindromes(List<String> listaPalindromos) {
+	    // Converte a lista de palíndromos para um conjunto para remover duplicatas.
+	    Set<String> conjuntoPalindromos = new HashSet<>(listaPalindromos);
+	    for (String palindrome : conjuntoPalindromos) {
+	        // Cria um novo objeto Palindrome e define seu valor.
+	        Palindrome novoPalindrome = new Palindrome();
+	        novoPalindrome.setValue(palindrome);
+	        // Salva o novo objeto Palindrome no repositório.
+	        palindromeRepo.save(novoPalindrome);
+	    }
+	}
+}

@@ -1,0 +1,139 @@
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.vagnersilva.palindromo.domain.Matriz;
+import com.vagnersilva.palindromo.services.MatrizService;
+
+@RestController
+@RequestMapping(value = "/matrizes")
+public class MatrizResource {
+    
+    @Autowired
+    private MatrizService service;
+    
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<Matriz>> findAll(){
+        return ResponseEntity.ok().body(service.findAll());
+    }
+    
+    @RequestMapping(value = "/resposta", method = RequestMethod.GET)
+    public ResponseEntity<List<String>> getPalindromes(){
+        return ResponseEntity.ok().body(service.getPalindromes());
+    }
+
+    @RequestMapping(value = "/resposta", method = RequestMethod.POST)
+    public ResponseEntity<Set<String>> findAndSavePalindromes(){
+        Set<String> palindromos = new HashSet<>();
+        for (Matriz matriz : service.findAll()) {
+            String[][] matrizValores = matriz.getMatriz();
+            findHorizontal(matrizValores, palindromos);
+            findVertical(matrizValores, palindromos);
+            findDiagonal(matrizValores, palindromos);
+        }
+        service.savePalindromes(new ArrayList<>(palindromos));
+        return ResponseEntity.ok().body(palindromos);
+    }
+    
+    private void findHorizontal(String[][] matrizValores, Set<String> palindromos) {
+        for (int i = 0; i < matrizValores.length; i++) {
+            for (int j = 0; j < matrizValores[i].length; j++) {
+                String sequencia = "";
+                for (int k = 0; k < matrizValores[i].length - j; k++) {
+                    sequencia += matrizValores[i][j + k];
+                    if (sequencia.length() >= 4 && isPalindrome(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+    }
+
+    private void findVertical(String[][] matrizValores, Set<String> palindromos) {
+        for (int i = 0; i < matrizValores[0].length; i++) {
+            for (int j = 0; j < matrizValores.length; j++) {
+                String sequencia = "";
+                for (int k = 0; k < matrizValores.length - j; k++) {
+                    sequencia += matrizValores[j + k][i];
+                    if (sequencia.length() >= 4 && isPalindrome(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+    }
+
+    private void findDiagonal(String[][] matrizValores, Set<String> palindromos) {
+        // Diagonal principal e abaixo
+        for (int i = 0; i < matrizValores.length; i++) {
+            for (int j = 0, x = i; x < matrizValores.length; j++, x++) {
+                String sequencia = "";
+                for (int k = 0, y = x, z = j; y < matrizValores.length && z < matrizValores[0].length; k++, y++, z++) {
+                    sequencia += matrizValores[y][z];
+                    if (sequencia.length() >= 4 && isPalindrome(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+
+        // Diagonal principal e acima
+        for (int i = 1; i < matrizValores[0].length; i++) {
+            for (int j = 0, x = i; x < matrizValores[0].length; j++, x++) {
+                String sequencia = "";
+                for (int k = 0, y = j, z = x; y < matrizValores.length && z < matrizValores[0].length; k++, y++, z++) {
+                    sequencia += matrizValores[y][z];
+                    if (sequencia.length() >= 4 && isPalindrome(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+
+        // Diagonal secundária e abaixo
+        for (int i = 0; i < matrizValores.length; i++) {
+            for (int j = 0, x = i, z = 0; x >= 0 ; j++, x--, z++) {
+                String sequencia = "";
+                for (int k = 0, y = x, w = z ; y >= 0 && w < matrizValores[0].length ; k++, y--, w++) {
+                    sequencia += matrizValores[y][w];
+                    if (sequencia.length() >= 4 && isPalindrome(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+
+        // Diagonal secundária e acima
+        for (int i = 1; i < matrizValores[0].length; i++) {
+            for (int j = matrizValores.length - 1, x = i, z = matrizValores.length - 1; x < matrizValores[0].length ; j--, x++, z--) {
+                String sequencia = "";
+                for (int k = 0, y = z, w = x ; y >= 0 && w < matrizValores[0].length ; k++, y--, w++) {
+                    sequencia += matrizValores[y][w];
+                    if (sequencia.length() >= 4 && isPalindrome(sequencia)) {
+                        palindromos.add(sequencia);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isPalindrome(String str) {
+        int start = 0;
+        int end = str.length() - 1;
+        while (start < end) {
+            if (str.charAt(start) != str.charAt(end)) {
+                return false;
+            }
+            start++;
+            end--;
+        }
+        return true;
+    }
+}

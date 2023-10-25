@@ -1,0 +1,5 @@
+package com.vagnersilva.palindromo.domain;
+
+public class Palindrome {
+
+}

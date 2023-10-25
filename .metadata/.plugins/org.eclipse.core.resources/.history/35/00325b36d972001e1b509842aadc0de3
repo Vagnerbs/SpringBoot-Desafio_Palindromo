@@ -1,0 +1,15 @@
+package com.vagnersilva.palindromo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+// A anotação @SpringBootApplication é uma conveniência para @Configuration, @EnableAutoConfiguration e @ComponentScan.
+@SpringBootApplication
+public class PalindromoApplication {
+
+    // O método main() é o ponto de entrada para a aplicação.
+	public static void main(String[] args) {
+        // SpringApplication.run() é usado para iniciar um aplicativo Spring Boot a partir do método main().
+		SpringApplication.run(PalindromoApplication.class, args);
+	}
+}

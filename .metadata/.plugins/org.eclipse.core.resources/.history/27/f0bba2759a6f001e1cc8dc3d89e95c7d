@@ -1,0 +1,49 @@
+package com.vagnersilva.palindromo.domain;
+
+import java.io.Serializable;
+import java.util.Objects;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+// A anotação @Document indica que esta classe corresponde a uma coleção do MongoDB.
+// O nome da coleção é especificado como "matriz".
+@Document(collection = "matriz")
+public class Matriz implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	// A anotação @Id indica que este atributo será a chave primária no MongoDB.
+	@Id 
+	private String id;
+	private String[][] matriz;
+	
+	// Construtor padrão
+	public Matriz() {
+		
+	}
+
+	// Construtor com parâmetros
+	public Matriz(String id, String[][] matriz) {
+		this.id = id;
+		this.matriz = matriz;
+	}
+
+	// Getters e setters
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String[][] getMatriz() {
+		return matriz;
+	}
+
+	public void setMatriz(String[][] matriz) {
+		this.matriz = matriz;
+	}
+
+}

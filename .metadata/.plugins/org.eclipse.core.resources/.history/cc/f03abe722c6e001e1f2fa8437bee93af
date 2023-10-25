@@ -1,0 +1,5 @@
+package com.vagnersilva.palindromo.repository;
+
+public class PalindromeRepository {
+
+}

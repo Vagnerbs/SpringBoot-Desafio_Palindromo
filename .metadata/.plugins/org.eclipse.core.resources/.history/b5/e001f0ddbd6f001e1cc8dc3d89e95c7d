@@ -1,0 +1,54 @@
+package com.vagnersilva.palindromo.resources;
+
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+//import com.vagnersilva.palindromo.domain.Matriz;
+import com.vagnersilva.palindromo.services.MatrizService;
+
+//Anotação para indicar que esta classe é um controlador REST
+@RestController
+//Anotação para mapear solicitações web para /matrizes
+@RequestMapping(value = "/matrizes")
+public class MatrizResource {
+
+	// Injeção de dependência do serviço de matriz
+	@Autowired
+	private MatrizService service;
+//=========================================================================================================
+	/*
+	 * // Método para buscar todas as matrizes // Anotação para mapear solicitações
+	 * GET para /matrizes
+	 * 
+	 * @GetMapping("/matriz") public ResponseEntity<List<Matriz>> findAll(){ //
+	 * Retorna uma resposta HTTP 200 (OK) com o corpo sendo todas as matrizes return
+	 * ResponseEntity.ok().body(service.findAll()); }
+	 */
+//=========================================================================================================
+
+    // Método para ENCONTAR e SALVAR palíndromos
+    // Anotação para mapear solicitações POST para /matrizes/resposta
+	//ResponseEntity é uma classe do Spring que representa toda a resposta HTTP
+	//Set é uma interface em Java que não permite objetos duplicados.
+    @PostMapping("/resposta")
+    public ResponseEntity<Set<String>> encontrarESalvarPalindromos(){
+        // Retorna uma resposta HTTP 200 (OK) com o corpo sendo os palíndromos encontrados.
+        return ResponseEntity.ok().body(service.encontrarESalvarPalindromos());
+    }
+    
+    // Método para obter palíndromos
+    // Anotação para mapear solicitações GET para /matrizes/resposta
+    @GetMapping("/resposta")
+    public ResponseEntity<List<String>> getPalindromos(){
+        // Retorna uma resposta HTTP 200 (OK) com o corpo sendo todos os palíndromos
+        return ResponseEntity.ok().body(service.getPalindromes());
+    }
+
+}

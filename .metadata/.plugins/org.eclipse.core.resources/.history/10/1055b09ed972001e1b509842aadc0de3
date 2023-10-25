@@ -1,0 +1,40 @@
+package com.vagnersilva.palindromo.domain;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+// A anotação @Document indica que esta classe corresponde a uma coleção do MongoDB.
+@Document
+public class Palindromo {
+
+    // A anotação @Id indica que este atributo será a chave primária no MongoDB.
+	@Id
+	private String id;
+	private String value;
+
+    // Construtor padrão
+	public Palindromo() {
+	}
+
+    // Construtor com parâmetros
+	public Palindromo(String value) {
+		this.value = value;
+	}
+
+    // Getters e setters
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+}

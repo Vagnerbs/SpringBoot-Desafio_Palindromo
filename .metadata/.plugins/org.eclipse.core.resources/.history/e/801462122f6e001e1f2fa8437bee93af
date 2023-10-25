@@ -1,0 +1,32 @@
+package com.vagnersilva.palindromo.services;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.vagnersilva.palindromo.domain.Matriz;
+import com.vagnersilva.palindromo.domain.Palindrome;
+import com.vagnersilva.palindromo.repository.MatrizRepository;
+import com.vagnersilva.palindromo.repository.PalindromeRepository;
+
+@Service
+public class MatrizService {
+	
+	@Autowired
+	private MatrizRepository matrizRepo;
+
+	@Autowired
+	private PalindromeRepository palindromeRepo;
+	
+	public List<Matriz> findAll(){
+		return matrizRepo.findAll();
+	}
+
+	public void savePalindromes(List<String> palindromes) {
+		for (String palindrome : palindromes) {
+			Palindrome newPalindrome = new Palindrome(palindrome);
+			palindromeRepo.save(newPalindrome);
+		}
+	}
+}

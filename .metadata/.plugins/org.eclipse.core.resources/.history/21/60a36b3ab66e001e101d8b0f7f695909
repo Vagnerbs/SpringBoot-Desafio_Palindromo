@@ -1,0 +1,133 @@
+package com.vagnersilva.palindromo.resources;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.vagnersilva.palindromo.domain.Matriz;
+import com.vagnersilva.palindromo.services.MatrizService;
+
+@RestController
+@RequestMapping(value = "/matrizes")
+public class MatrizResource {
+	
+	@Autowired
+	private MatrizService service;
+	
+	// Endpoint GET para buscar todas as matrizes
+	@RequestMapping(method = RequestMethod.GET)
+	public ResponseEntity<List<Matriz>> findAll(){
+		// Retorna todas as matrizes encontradas pelo serviço
+		return ResponseEntity.ok().body(service.findAll());
+	}
+	
+	// Endpoint GET para buscar todos os palíndromos
+	@RequestMapping(value = "/resposta", method = RequestMethod.GET)
+	public ResponseEntity<List<String>> getPalindromes(){
+		// Retorna todos os palíndromos encontrados pelo serviço
+		return ResponseEntity.ok().body(service.getPalindromes());
+	}
+
+    // Endpoint POST para encontrar e salvar palíndromos
+	@RequestMapping(value = "/resposta", method = RequestMethod.POST)
+	public ResponseEntity<Set<String>> findAndSavePalindromes(){
+	    
+	    // Conjunto para armazenar os palíndromos encontrados
+	    Set<String> palindromos = new HashSet<>();
+
+	    // Para cada matriz, procura por palíndromos nas direções horizontal, vertical e diagonal
+	    for (Matriz matriz : service.findAll()) {
+	        String[][] matrizValores = matriz.getMatriz();
+	        findHorizontal(matrizValores, palindromos);
+	        findVertical(matrizValores, palindromos);
+	        findDiagonal(matrizValores, palindromos);
+	    }
+
+	    // Salva os palíndromos encontrados no banco de dados
+	    service.savePalindromes(new ArrayList<>(palindromos));
+
+	    // Retorna os palíndromos encontrados e salvos
+	    return ResponseEntity.ok().body(palindromos);
+	    
+	}
+	
+    // Método para procurar palíndromos na horizontal
+	private void findHorizontal(String[][] matrizValores, Set<String> palindromos) {
+	    // Percorre cada linha da matriz
+	    for (int i = 0; i < matrizValores.length; i++) {
+	        // Percorre cada coluna da linha atual
+	        for (int j = 0; j < matrizValores[i].length; j++) {
+	            String sequencia = "";
+	            // Procura por uma sequência de caracteres na direção horizontal a partir da posição atual
+	            for (int k = 0; k < matrizValores[i].length - j; k++) {
+	                sequencia += matrizValores[i][j + k];
+	                // Se a sequência tem tamanho maior ou igual a 4 e é um palíndromo, adiciona ao conjunto de palíndromos
+	                if (sequencia.length() >= 4 && isPalindrome(sequencia)) {
+	                    palindromos.add(sequencia);
+	                }
+	            }
+	        }
+	    }
+	}
+
+    // Método para procurar palíndromos na vertical
+	private void findVertical(String[][] matrizValores, Set<String> palindromos) {
+	    // Percorre cada coluna da matriz
+	    for (int j = 0; j < matrizValores[0].length; j++) {
+	        // Percorre cada linha da coluna atual
+	        for (int i = 0; i < matrizValores.length; i++) {
+	            String sequencia = "";
+	            // Procura por uma sequência de caracteres na direção vertical a partir da posição atual
+	            for (int k = 0; k < matrizValores.length - i; k++) {
+	                sequencia += matrizValores[i + k][j];
+	                // Se a sequência tem tamanho maior ou igual a 4 e é um palíndromo, adiciona ao conjunto de palíndromos
+	                if (sequencia.length() >= 4 && isPalindrome(sequencia)) {
+	                    palindromos.add(sequencia);
+	                }
+	            }
+	        }
+	    }
+	}
+
+    // Método para procurar palíndromos na diagonal
+	private void findDiagonal(String[][] matrizValores, Set<String> palindromos) {
+	    // Percorre cada linha da matriz
+	    for (int i = 0; i < matrizValores.length; i++) {
+	        // Percorre cada coluna da linha atual
+	        for (int j = 0; j < matrizValores[i].length; j++) {
+	            String sequencia = "";
+	            // Procura por uma sequência de caracteres na direção diagonal a partir da posição atual
+	            for (int k = 0; k < matrizValores.length - i && k < matrizValores[i].length - j; k++) {
+	                sequencia += matrizValores[i + k][j + k];
+	                // Se a sequência tem tamanho maior ou igual a 4 e é um palíndromo, adiciona ao conjunto de palíndromos
+	                if (sequencia.length() >= 4 && isPalindrome(sequencia)) {
+	                    palindromos.add(sequencia);
+	                }
+	            }
+	        }
+	    }
+	}
+	
+    // Método para verificar se uma sequência é um palíndromo
+	private boolean isPalindrome(String sequencia) {
+		int i = 0, j = sequencia.length() - 1; 
+
+        // Compara os caracteres nas posições i e j. Se eles são diferentes, a sequência não é um palíndromo.
+        while (i < j) { 
+            if (sequencia.charAt(i) != sequencia.charAt(j)) 
+                return false; 
+            i++; 
+            j--; 
+        } 
+
+        // Se todos os caracteres nas posições i e j são iguais, a sequência é um palíndromo.
+        return true;
+	}
+}

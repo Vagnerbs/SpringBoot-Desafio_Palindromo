@@ -1,0 +1,13 @@
+package com.vagnersilva.palindromo.repository;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import com.vagnersilva.palindromo.domain.Palindromo;
+
+// A anotação @Repository permite que o Spring encontre e configure automaticamente o repositório.
+@Repository
+public interface PalindromoRepository extends MongoRepository<Palindromo, String>{
+    // Ao estender MongoRepository, esta interface herda vários métodos para trabalhar com persistência de dados MongoDB.
+    // Aqui, esses métodos são aplicados a instâncias da classe Palindrome, e o tipo do ID da classe é String.
+}
